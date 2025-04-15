@@ -22,7 +22,7 @@ describe('Central de Atendimento ao Cliente TAT', () => {
     cy.get('#firstName').type('Priscila teste1') // nome correro
     cy.get('#lastName').type('da Silva') // sobrenome correto
     cy.get('#email').type('priscila.teste@gmail,com') //email de formatação invalido pela ,
-    cy.get('#open-text-area').type('teste') //digitamos na area de texto
+    cy.get('#open-text-area').type('teste') //digitamos na area de tex
     cy.get('button[type="submit"]').click() //clicamos no botão 
     
     cy.get('.error').should('be.visible') // e verificamos se uma mensagem de erro esta sendo exibida. a classe error é identificada pelo (.) e should exibe a mensagem
