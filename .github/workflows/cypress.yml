@@ -1,14 +1,50 @@
 name: Cypress Tests
 on: [push]
+
 jobs:
   cypress-run:
     runs-on: ubuntu-latest
+    container:
+      image: cypress/browsers:node-18.16.0-chrome-109.0.5414.74-1-ff-109.0-edge-109.0.1518.52-1
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
       - name: Install dependencies
         run: npm ci
-      
+
+      - name: Create results folder
+        run: mkdir -p cypress/results
+
       - name: Run Cypress tests
-        run: npx cypress run
+        run: |
+          npx cypress run --browser chrome --headless \
+            --reporter junit \
+            --reporter-options "mochaFile=cypress/results/results-[hash].xml" \
+            --record false
+        env:
+          CYPRESS_RETRIES: 2
+
+      - name: Save test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: cypress-results-${{ github.run_id }}
+          path: |
+            cypress/results/*.xml
+            cypress/screenshots/**/*.png
+            cypress/videos/**/*.mp4
+
+      - name: Publish Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Cypress Test Results
+          path: cypress/results/*.xml
+          reporter: java-junit
+          fail-on-error: false
