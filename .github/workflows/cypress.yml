@@ -32,6 +32,7 @@ jobs:
 
       - name: Save test results
         uses: actions/upload-artifact@v3
+
         if: always()
         with:
           name: cypress-results-${{ github.run_id }}
