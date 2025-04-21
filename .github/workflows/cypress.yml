@@ -31,7 +31,8 @@ jobs:
           CYPRESS_RETRIES: 2
 
       - name: Save test results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.2
+
 
         if: always()
         with:
