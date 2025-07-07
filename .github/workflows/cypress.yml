@@ -31,9 +31,7 @@ jobs:
           CYPRESS_RETRIES: 2
 
       - name: Save test results
-        uses: actions/upload-artifact@v3.1.2
-
-
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: cypress-results-${{ github.run_id }}
