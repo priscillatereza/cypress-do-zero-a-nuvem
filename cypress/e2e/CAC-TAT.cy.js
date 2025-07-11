@@ -8,6 +8,8 @@ describe('Central de Atendimento ao Cliente TAT', () => {
    cy.title().should('be.equal', 'Central de Atendimento ao Cliente TAT')  //VERIFICNADO QUE ELE É IGUAL AO TITULO CENTRAL DE ATENDIMENTS
   })
   it('preenche os campos obrigatorios e envia o formulario', () => {
+    cy.clock()  // add o clock seção 13 avançando no uso do cypress
+
     const longText = Cypress._.repeat('abcdefghijklmnopqrstuvwxyz', 10);
     cy.get('#firstName').type('Priscila teste')
     cy.get('#lastName').type('da Silva')
@@ -17,8 +19,15 @@ describe('Central de Atendimento ao Cliente TAT', () => {
 
   cy.get('.success').should('be.visible')
 
+  cy.tick(3000) //equivalente a 3 segundos
+
+  cy.get('.success').should('not.be.visible')
+
+
   })
   it('exibe mensagem de erro ao submeter o formulário com um email com formatação inválida', () => { //Criou um teste  que exibe uma mensagem de erro
+    cy.clock()  // add o clock seção 13 avançando no uso do cypress
+
     cy.get('#firstName').type('Priscila teste1') // nome correto
     cy.get('#lastName').type('da Silva') // sobrenome correto
     cy.get('#email').type('priscila.teste@gmail,com') //email de formatação invalido pela ,
@@ -26,6 +35,9 @@ describe('Central de Atendimento ao Cliente TAT', () => {
     cy.get('button[type="submit"]').click() //clicamos no botão 
     
     cy.get('.error').should('be.visible') // e verificamos se uma mensagem de erro esta sendo exibida. a classe error é identificada pelo (.) e should exibe a mensagem
+    cy.tick(3000) //equivalente a 3 segundos
+
+     cy.get('.success').should('not.be.visible')
   })
   it('Campo telefone continua vazio quando preenchido com um valor não numerico ', () => {
     cy.get('#phone') //buscamos o campo telefone do tipo numero // encadear mais de um comando e fica tranquilo colocar tudo na mesma linha
@@ -40,6 +52,7 @@ describe('Central de Atendimento ao Cliente TAT', () => {
 
   })
   it('exibe mensagem de erro quando o telefone se torna obrigatório mas não é preenchido antes do envio do formulário', () => {
+    cy.clock()
     cy.get('#firstName').type('Priscila teste1') // nome correro
     cy.get('#lastName').type('da Silva') // sobrenome correto
     cy.get('#email').type('priscila.teste@gmail,com') //email de formatação invalido pela ,
@@ -48,6 +61,10 @@ describe('Central de Atendimento ao Cliente TAT', () => {
     cy.get('button[type="submit"]').click() //clicamos no botão 
    
     cy.get('.error').should('be.visible') //exibe a mensagem de erro
+
+    cy.tick(3000) //equivalente a 3 segundos
+    cy.get('.success').should('not.be.visible')
+
   })
 
   it('preenche e limpa os campos nome, sobrenome, email e telefone', () => {
@@ -80,9 +97,13 @@ describe('Central de Atendimento ao Cliente TAT', () => {
   })
 
   it('envia o formuário com sucesso usando um comando customizado', () => {
+    cy.clock() // com a funcionalidade .clock podemos congelar o relogio do navegador
     cy.fillMandatoryFieldsAndSubmit() //clicamos no botão 
      
       cy.get('.success').should('be.visible') //exibe a mensagem de sucesso
+
+      cy.tick(3000)// conseguimos avançar no tempo
+      cy.get('.success').should('not.be.visible')
     })
 
     it('envia o formulario com sucesso usando um comando customizado',() => {  //pela pasta commands, passando valors diferentes
@@ -209,4 +230,54 @@ it('testa a página da política de privacidade de forma independente', () => {/
   //seção 09: simulando dimensoes de um dispositivo movel
 //"cy:open:mobile": "cypress open --config viewportWidth=410,viewportHeight=860", no package.json
 // "test:mobile": "cypress run --config viewportWidth=410,viewportHeight=860"  execução dos testes em modo hidles com video configurado no cypress.config  video: true
+
+//Seção 12: avançando no uso do cypress
+it('exibe e oculta as mensagens de sucesso e erro usando .invoke()', () => {
+  cy.get('.success')
+    .should('not.be.visible')
+    .invoke('show')
+    .should('be.visible')
+    .and('contain', 'Mensagem enviada com sucesso.')
+    .invoke('hide')
+    .should('not.be.visible')
+  cy.get('.error')
+    .should('not.be.visible')
+    .invoke('show')
+    .should('be.visible')
+    .and('contain', 'Valide os campos obrigatórios!')
+    .invoke('hide')
+    .should('not.be.visible')
+})
+
+
+it('preenche o campo da área de texto usando o comando invoke', () => {
+cy.get('#open-text-area') //pegou  o campo da area de texto
+ .invoke('val', 'Um texto qualquer') //encadeou o e passou o valor especifico
+ .should('have.value', 'Um texto qualquer') // verificação de resultado esperado
+
+})
+
+it('faz uma requisição HTTP', () => {  //api TESTE
+cy.request('https://cac-tat-v3.s3.eu-central-1.amazonaws.com/index.html')
+  .as('getRequest')
+  .its('status')
+ .should('be.equal', 200) // verificação de resultado esperado
+cy.get('@getRequest') 
+  .its('statusText')
+  .should('be.equal', 'OK')
+cy.get('@getRequest')  
+  .its('body')
+  .should('include', 'CAC TAT')
+})
+
+it('encontra o gato escondido', () => {
+cy.get('#cat')
+  .invoke('show')// pra mostrar um elemento que ta escondido
+  .should('be.visible')
+cy.get('#title')  
+   .invoke('text', 'CAT TAT') // podemos alterar o texto pra brincar
+cy.get('#subtitle')
+   .invoke('text', 'Eu  amo gatos')
+  })
+
 })
